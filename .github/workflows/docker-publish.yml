@@ -3,7 +3,7 @@ name: Build and push Docker image
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch:  # 수동 실행 가능
 
 jobs:
   build:
@@ -17,6 +17,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Generate tag (YYYYMMDD-RUN_NUMBER)
+        id: tag
+        run: echo "value=$(date +%Y%m%d)-${{ github.run_number }}" >> $GITHUB_OUTPUT
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -29,4 +33,8 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/pocketbase:latest
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/pocketbase:latest
+            ghcr.io/${{ github.repository_owner }}/pocketbase:${{ steps.tag.outputs.value }}
+          build-args: |
+            PB_VERSION=${{ secrets.PB_VERSION }}
