@@ -1,0 +1,9 @@
+FROM alpine:latest
+
+RUN apk add --no-cache unzip openssh
+
+ADD https://github.com/pocketbase/pocketbase/releases/download/v${{ secrets.PB_VERSION }}/pocketbase_${{ secrets.PB_VERSION }}_linux_amd64.zip /tmp/pb.zip
+RUN unzip /tmp/pb.zip -d /pb/
+
+EXPOSE 8080
+CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080"]
